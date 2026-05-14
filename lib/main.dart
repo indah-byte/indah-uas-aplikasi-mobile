@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/journal_provider.dart';
 import 'screens/journal_list_screen.dart';
+import 'screens/login_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() {
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Sanctuary Journal',
       theme: AppTheme.lightTheme,
-      home: const JournalListScreen(),
+      home: const LoginScreen(),
     );
   }
 }

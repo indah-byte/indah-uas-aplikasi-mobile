@@ -69,6 +69,7 @@ class ProfileScreen extends StatelessWidget {
             child: CircleAvatar(
               backgroundColor: Colors.grey[200],
               radius: 18,
+              child: const Icon(Icons.person, size: 20, color: Colors.grey),
             ),
           ),
         ],
@@ -78,39 +79,20 @@ class ProfileScreen extends StatelessWidget {
           children: [
             const SizedBox(height: 40),
             Center(
-              child: Stack(
-                children: [
-                  Container(
-                    width: 140,
-                    height: 140,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'img',
-                        style: TextStyle(color: Colors.black54),
-                      ),
-                    ),
+              child: Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.person,
+                    size: 80,
+                    color: Colors.grey,
                   ),
-                  Positioned(
-                    bottom: 0,
-                    right: 4,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: AppTheme.primaryColor,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.edit,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
             const SizedBox(height: 24),
