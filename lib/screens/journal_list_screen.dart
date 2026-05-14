@@ -3,6 +3,8 @@ import '../models/journal_entry.dart';
 import '../theme/app_theme.dart';
 import 'package:intl/intl.dart';
 
+import 'new_entry_screen.dart';
+
 class JournalListScreen extends StatelessWidget {
   final List<JournalEntry> entries = [
     JournalEntry(
@@ -109,7 +111,12 @@ class JournalListScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NewEntryScreen()),
+          );
+        },
         backgroundColor: AppTheme.primaryColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: const Icon(Icons.add, color: Colors.white, size: 30),
