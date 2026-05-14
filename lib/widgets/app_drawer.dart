@@ -3,7 +3,9 @@ import '../theme/app_theme.dart';
 import '../screens/profile_screen.dart';
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
+  final String currentRoute;
+  
+  const AppDrawer({super.key, required this.currentRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -12,43 +14,88 @@ class AppDrawer extends StatelessWidget {
       child: Column(
         children: [
           _buildHeader(context),
-          const SizedBox(height: 20),
-          _buildDrawerItem(
-            icon: Icons.home_outlined,
-            title: 'Beranda',
-            onTap: () => Navigator.pop(context),
-            isSelected: true,
-          ),
-          const Divider(indent: 20, endIndent: 20, height: 40),
-          _buildDrawerItem(
-            icon: Icons.person_outline,
-            title: 'Profil Saya',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-            },
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Row(
+          const SizedBox(height: 10),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
               children: [
-                const Icon(Icons.logout, color: Colors.redAccent, size: 20),
-                const SizedBox(width: 12),
-                Text(
-                  'Keluar',
-                  style: TextStyle(
-                    color: Colors.redAccent.withOpacity(0.8),
-                    fontWeight: FontWeight.bold,
-                  ),
+                _buildDrawerItem(
+                  icon: Icons.home_outlined,
+                  title: 'Beranda',
+                  onTap: () {
+                    Navigator.pop(context);
+                    if (currentRoute != 'home') {
+                      Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                    }
+                  },
+                  isSelected: currentRoute == 'home',
+                ),
+                _buildDrawerItem(
+                  icon: Icons.person_outline,
+                  title: 'Profil Saya',
+                  onTap: () {
+                    Navigator.pop(context);
+                    if (currentRoute != 'profile') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                      );
+                    }
+                  },
+                  isSelected: currentRoute == 'profile',
                 ),
               ],
             ),
           ),
+          const Divider(height: 1),
+          _buildLogoutButton(context),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLogoutButton(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        Navigator.pop(context);
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Keluar'),
+            content: const Text('Apakah Anda yakin ingin keluar dari Sanctuary?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Batal'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Anda telah keluar.')),
+                  );
+                },
+                child: const Text('Keluar', style: TextStyle(color: Colors.redAccent)),
+              ),
+            ],
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Row(
+          children: [
+            const Icon(Icons.logout, color: Colors.redAccent, size: 20),
+            const SizedBox(width: 12),
+            Text(
+              'Keluar',
+              style: TextStyle(
+                color: Colors.redAccent.withOpacity(0.8),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

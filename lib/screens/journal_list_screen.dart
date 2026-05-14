@@ -18,7 +18,7 @@ class JournalListScreen extends StatelessWidget {
     final entries = journalProvider.entries;
 
     return Scaffold(
-      drawer: const AppDrawer(),
+      drawer: const AppDrawer(currentRoute: 'home'),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

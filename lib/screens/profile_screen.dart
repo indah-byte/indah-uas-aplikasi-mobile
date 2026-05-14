@@ -1,19 +1,59 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_drawer.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
+  void _showFeatureMessage(BuildContext context, String feature) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Fitur $feature akan segera hadir!'),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        backgroundColor: AppTheme.primaryColor,
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Keluar'),
+        content: const Text('Apakah Anda yakin ingin keluar dari Sanctuary?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Anda telah keluar.')),
+              );
+            },
+            child: const Text('Keluar', style: TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
+      drawer: const AppDrawer(currentRoute: 'profile'),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: AppTheme.primaryColor),
-          onPressed: () {},
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, color: AppTheme.primaryColor),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
         title: const Text(
           'Sanctuary',
@@ -120,23 +160,31 @@ class ProfileScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         _buildSettingItem(
+                          context,
                           icon: Icons.notifications_none_outlined,
                           title: 'Notifikasi',
+                          onTap: () => _showFeatureMessage(context, 'Notifikasi'),
                         ),
                         const Divider(height: 1, indent: 60),
                         _buildSettingItem(
+                          context,
                           icon: Icons.lock_outline,
                           title: 'Keamanan',
+                          onTap: () => _showFeatureMessage(context, 'Keamanan'),
                         ),
                         const Divider(height: 1, indent: 60),
                         _buildSettingItem(
+                          context,
                           icon: Icons.cloud_outlined,
                           title: 'Pencadangan Cloud',
+                          onTap: () => _showFeatureMessage(context, 'Pencadangan Cloud'),
                         ),
                         const Divider(height: 1, indent: 60),
                         _buildSettingItem(
+                          context,
                           icon: Icons.info_outline,
                           title: 'Tentang Sanctuary',
+                          onTap: () => _showFeatureMessage(context, 'Tentang Sanctuary'),
                         ),
                       ],
                     ),
@@ -146,7 +194,7 @@ class ProfileScreen extends StatelessWidget {
                     width: double.infinity,
                     height: 60,
                     child: ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () => _showLogoutDialog(context),
                       icon: const Icon(Icons.logout, color: Color(0xFFD32F2F)),
                       label: const Text(
                         'Keluar',
@@ -175,7 +223,11 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingItem({required IconData icon, required String title}) {
+  Widget _buildSettingItem(BuildContext context, {
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       leading: Container(
@@ -194,7 +246,7 @@ class ProfileScreen extends StatelessWidget {
         ),
       ),
       trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-      onTap: () {},
+      onTap: onTap,
     );
   }
 }
