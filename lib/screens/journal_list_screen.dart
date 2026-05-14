@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import 'journal_detail_screen.dart';
 import 'new_entry_screen.dart';
+import 'profile_screen.dart';
 
 class JournalListScreen extends StatelessWidget {
   final List<JournalEntry> entries = [
@@ -70,11 +71,19 @@ class JournalListScreen extends StatelessWidget {
         ),
         centerTitle: true,
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-              backgroundColor: Colors.grey[300],
-              child: const Text('img', style: TextStyle(fontSize: 12, color: Colors.black54)),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: CircleAvatar(
+                backgroundColor: Colors.grey[300],
+                child: const Text('img', style: TextStyle(fontSize: 12, color: Colors.black54)),
+              ),
             ),
           ),
         ],
