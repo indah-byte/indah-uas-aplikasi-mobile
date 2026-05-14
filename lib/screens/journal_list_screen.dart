@@ -3,6 +3,7 @@ import '../models/journal_entry.dart';
 import '../theme/app_theme.dart';
 import 'package:intl/intl.dart';
 
+import 'journal_detail_screen.dart';
 import 'new_entry_screen.dart';
 
 class JournalListScreen extends StatelessWidget {
@@ -185,10 +186,19 @@ class TimelineItem extends StatelessWidget {
           ),
           const SizedBox(width: 20),
           Expanded(
-            child: Column(
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(bottom: 24),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => JournalDetailScreen(entry: entry),
+                  ),
+                );
+              },
+              child: Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 24),
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
