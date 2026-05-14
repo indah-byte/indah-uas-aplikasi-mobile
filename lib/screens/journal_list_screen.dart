@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'journal_detail_screen.dart';
 import 'new_entry_screen.dart';
 import 'profile_screen.dart';
+import '../widgets/app_drawer.dart';
 
 class JournalListScreen extends StatelessWidget {
   final List<JournalEntry> entries = [
@@ -52,7 +53,7 @@ class JournalListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const Drawer(),
+      drawer: const AppDrawer(),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
