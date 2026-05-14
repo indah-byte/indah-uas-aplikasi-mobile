@@ -275,8 +275,9 @@ class TimelineItem extends StatelessWidget {
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 }
