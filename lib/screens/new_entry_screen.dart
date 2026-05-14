@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/journal_entry.dart';
+import '../providers/journal_provider.dart';
 import '../theme/app_theme.dart';
 import 'package:intl/intl.dart';
 
@@ -10,6 +13,8 @@ class NewEntryScreen extends StatefulWidget {
 }
 
 class _NewEntryScreenState extends State<NewEntryScreen> {
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
   String selectedMood = 'Tenang';
   final List<String> tags = ['syukur', 'pertumbuhan'];
 
@@ -20,6 +25,37 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
     {'name': 'Energi', 'emoji': '⚡', 'color': 'bulb'},
     {'name': 'Biasa', 'emoji': '☁️', 'color': 'moon'},
   ];
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _contentController.dispose();
+    super.dispose();
+  }
+
+  void _saveEntry() {
+    if (_titleController.text.isEmpty || _contentController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Judul dan konten tidak boleh kosong')),
+      );
+      return;
+    }
+
+    final moodData = moods.firstWhere((m) => m['name'] == selectedMood);
+    
+    final newEntry = JournalEntry(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: _titleController.text,
+      content: _contentController.text,
+      date: DateTime.now(),
+      category: tags.isNotEmpty ? tags.first : 'umum',
+      emoji: moodData['emoji']!,
+      iconType: moodData['color']!,
+    );
+
+    Provider.of<JournalProvider>(context, listen: false).addEntry(newEntry);
+    Navigator.pop(context);
+  }
 
   Color _getMoodColor(String type) {
     switch (type) {
@@ -50,7 +86,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: _saveEntry,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
                 foregroundColor: Colors.white,
@@ -125,13 +161,14 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            const TextField(
-              decoration: InputDecoration(
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(
                 hintText: 'Judul',
                 hintStyle: TextStyle(fontSize: 24, color: Colors.grey, fontWeight: FontWeight.w300),
                 border: InputBorder.none,
               ),
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Wrap(
@@ -175,9 +212,10 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                 color: Colors.grey[50],
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const TextField(
+              child: TextField(
+                controller: _contentController,
                 maxLines: 8,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Ceritakan harimu...',
                   border: InputBorder.none,
                 ),
@@ -188,7 +226,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
               width: double.infinity,
               height: 56,
               child: ElevatedButton.icon(
-                onPressed: () => Navigator.pop(context),
+                onPressed: _saveEntry,
                 icon: const Icon(Icons.check, color: Colors.white),
                 label: const Text('Simpan Entri', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(

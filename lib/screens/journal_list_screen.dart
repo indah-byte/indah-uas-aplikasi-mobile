@@ -1,57 +1,22 @@
 import 'package:flutter/material.dart';
 import '../models/journal_entry.dart';
-import '../theme/app_theme.dart';
 import 'package:intl/intl.dart';
-
+import 'package:provider/provider.dart';
+import '../providers/journal_provider.dart';
+import '../theme/app_theme.dart';
 import 'journal_detail_screen.dart';
 import 'new_entry_screen.dart';
 import 'profile_screen.dart';
 import '../widgets/app_drawer.dart';
 
 class JournalListScreen extends StatelessWidget {
-  final List<JournalEntry> entries = [
-    JournalEntry(
-      id: '1',
-      title: 'Pagi yang Menenanglan',
-      content: 'Hari ini dimulai dengan secangkir teh di teras. Menghirup udara...',
-      date: DateTime(2026, 10, 12, 8, 30),
-      category: 'syukur',
-      emoji: '🌿',
-      iconType: 'leaf',
-    ),
-    JournalEntry(
-      id: '2',
-      title: 'Refleksi Proyek Besar',
-      content: 'Akhirnya menyelesaikan milestone pertama. Ternyata...',
-      date: DateTime(2026, 10, 11, 21, 15),
-      category: 'kerja',
-      emoji: '💡',
-      iconType: 'bulb',
-    ),
-    JournalEntry(
-      id: '3',
-      title: 'Melepaskan Lelah',
-      content: 'Malam ini terasa sunyi. Terkadang',
-      date: DateTime(2026, 10, 10, 23, 45),
-      category: 'istirahat',
-      emoji: '🌙',
-      iconType: 'moon',
-    ),
-    JournalEntry(
-      id: '4',
-      title: 'Suara Ombak',
-      content: 'Berjalan di tepi pantai memberikan perspektif baru....',
-      date: DateTime(2026, 10, 9, 17, 0),
-      category: 'santai',
-      emoji: '🌊',
-      iconType: 'wave',
-    ),
-  ];
-
-  JournalListScreen({super.key});
+  const JournalListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final journalProvider = Provider.of<JournalProvider>(context);
+    final entries = journalProvider.entries;
+
     return Scaffold(
       drawer: const AppDrawer(),
       appBar: AppBar(
