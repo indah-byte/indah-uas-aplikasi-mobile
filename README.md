@@ -1,3 +1,4 @@
+## Daily Journal
 ## 1. Arsitektur Folder (Struktur Project)
 Jika Anda menggunakan Flutter, gunakan struktur yang rapi agar mudah dikelola:
     - lib/models/: Untuk definisi data (misal: entry_model.dart).
