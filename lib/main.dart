@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/journal_provider.dart';
 import 'screens/journal_list_screen.dart';
-import 'screens/login_screen.dart';
+import 'screens/splash_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() {
@@ -21,9 +21,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Sanctuary Journal',
-      theme: AppTheme.lightTheme,
-      home: const LoginScreen(),
+      title: 'Gearhead Performance',
+      theme: AppTheme.darkTheme,
+      themeMode: ThemeMode.dark,
+      home: const SplashScreen(),
     );
   }
 }

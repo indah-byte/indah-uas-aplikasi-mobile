@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../screens/profile_screen.dart';
 
@@ -10,7 +12,7 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: const Color(0xFF0F0F0F),
       child: Column(
         children: [
           _buildHeader(context),
@@ -20,8 +22,8 @@ class AppDrawer extends StatelessWidget {
               padding: EdgeInsets.zero,
               children: [
                 _buildDrawerItem(
-                  icon: Icons.home_outlined,
-                  title: 'Beranda',
+                  icon: Icons.directions_car_outlined,
+                  title: 'GARAGE',
                   onTap: () {
                     Navigator.pop(context);
                     if (currentRoute != 'home') {
@@ -32,7 +34,7 @@ class AppDrawer extends StatelessWidget {
                 ),
                 _buildDrawerItem(
                   icon: Icons.person_outline,
-                  title: 'Profil Saya',
+                  title: 'OPERATOR PROFILE',
                   onTap: () {
                     Navigator.pop(context);
                     if (currentRoute != 'profile') {
@@ -44,10 +46,18 @@ class AppDrawer extends StatelessWidget {
                   },
                   isSelected: currentRoute == 'profile',
                 ),
+                _buildDrawerItem(
+                  icon: Icons.settings_outlined,
+                  title: 'SYSTEM SETTINGS',
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  isSelected: false,
+                ),
               ],
             ),
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: Colors.white10),
           _buildLogoutButton(context),
         ],
       ),
@@ -61,21 +71,22 @@ class AppDrawer extends StatelessWidget {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Keluar'),
-            content: const Text('Apakah Anda yakin ingin keluar dari Sanctuary?'),
+            backgroundColor: const Color(0xFF1A1A1A),
+            title: Text('TERMINATE SESSION', style: GoogleFonts.outfit(color: Colors.red, fontWeight: FontWeight.bold)),
+            content: Text('Are you sure you want to disconnect from Gearhead?', style: GoogleFonts.outfit(color: Colors.white70)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Batal'),
+                child: Text('CANCEL', style: GoogleFonts.outfit(color: Colors.white54)),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Anda telah keluar.')),
+                    const SnackBar(content: Text('Session terminated.')),
                   );
                 },
-                child: const Text('Keluar', style: TextStyle(color: Colors.redAccent)),
+                child: Text('LOGOUT', style: GoogleFonts.outfit(color: Colors.red, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -85,13 +96,14 @@ class AppDrawer extends StatelessWidget {
         padding: const EdgeInsets.all(24.0),
         child: Row(
           children: [
-            const Icon(Icons.logout, color: Colors.redAccent, size: 20),
+            const Icon(Icons.logout, color: Colors.red, size: 20),
             const SizedBox(width: 12),
             Text(
-              'Keluar',
-              style: TextStyle(
-                color: Colors.redAccent.withOpacity(0.8),
+              'LOGOUT',
+              style: GoogleFonts.outfit(
+                color: Colors.red,
                 fontWeight: FontWeight.bold,
+                letterSpacing: 1,
               ),
             ),
           ],
@@ -103,31 +115,44 @@ class AppDrawer extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(top: 60, left: 24, right: 24, bottom: 24),
-      color: AppTheme.primaryColor.withOpacity(0.05),
+      decoration: BoxDecoration(
+        color: Colors.red.withOpacity(0.05),
+        border: const Border(bottom: BorderSide(color: Colors.white10)),
+      ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-            child: const Text('MA', style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold)),
+          Container(
+            padding: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.red, width: 2),
+            ),
+            child: CircleAvatar(
+              radius: 30,
+              backgroundColor: Colors.black,
+              backgroundImage: FileImage(File(r'C:\Users\DELL\.gemini\antigravity\brain\a1ad88cd-e380-40ab-96eb-7991a69e426d\gearhead_profile_avatar_1778818045664.png')),
+            ),
           ),
           const SizedBox(width: 16),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Maya Arisanti',
-                style: TextStyle(
+                'MAYA ARISANTI',
+                style: GoogleFonts.outfit(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.primaryColor,
+                  color: Colors.white,
+                  letterSpacing: 1,
                 ),
               ),
               Text(
-                'Journal Member',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
+                'MASTER MECHANIC',
+                style: GoogleFonts.outfit(
+                  fontSize: 10,
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
                 ),
               ),
             ],
@@ -148,17 +173,19 @@ class AppDrawer extends StatelessWidget {
       child: ListTile(
         leading: Icon(
           icon,
-          color: isSelected ? AppTheme.primaryColor : Colors.grey[600],
+          color: isSelected ? Colors.red : Colors.white24,
         ),
         title: Text(
           title,
-          style: TextStyle(
-            color: isSelected ? AppTheme.primaryColor : Colors.black87,
+          style: GoogleFonts.outfit(
+            color: isSelected ? Colors.white : Colors.white54,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            fontSize: 14,
+            letterSpacing: 1,
           ),
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        tileColor: isSelected ? AppTheme.primaryColor.withOpacity(0.1) : null,
+        tileColor: isSelected ? Colors.red.withOpacity(0.1) : null,
         onTap: onTap,
       ),
     );
