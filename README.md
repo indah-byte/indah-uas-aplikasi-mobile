@@ -1,66 +1,56 @@
-## Daily Journal
-## 1. Arsitektur Folder (Struktur Project)
-Jika Anda menggunakan Flutter, gunakan struktur yang rapi agar mudah dikelola:
-    - lib/models/: Untuk definisi data (misal: entry_model.dart).
-    - lib/screens/: Folder berisi halaman (Home, Edit Catatan, Detail).
-    - lib/services/: Folder untuk database (SQLite atau Local Storage).
-    - lib/widgets/: Komponen kecil yang dipakai berulang (Card catatan, Tombol Mood).
+# Sanctuary 🌿
 
-## 2. Skema Data (Model Catatan)
-Data adalah inti dari jurnal. Berikut adalah atribut yang perlu Anda simpan dalam satu objek catatan:
-    - id: (Int/String) Identitas unik setiap catatan.
-    - title: (String) Judul jurnal.
-    - content: (Text) Isi cerita.
-    - mood: (String) Nama emoji atau kode perasaan (misal: "happy", "sad").
-    -date: (DateTime) Tanggal pembuatan.
-    - imagePath: (String, Optional) Lokasi file foto jika ada.
+**Sanctuary** adalah aplikasi jurnal minimalis dan eksklusif yang dirancang untuk menjadi ruang privat Anda dalam menuangkan pikiran, melacak *mood*, dan menemukan ketenangan (*finding stillness through words*). Aplikasi ini merupakan hasil transformasi komprehensif ke antarmuka kelas atas (*Premium Tier*) dengan fokus pada *mindfulness* dan keindahan tipografi.
 
-## 3. Alur Pengguna (User Journey)
-- Halaman Utama (Timeline): Pengguna melihat daftar catatan dalam bentuk Card. Ada tombol "+" besar untuk menambah catatan baru.
-- Halaman Input: Pengguna memilih Mood, menulis Judul, dan mengetik isi jurnal.
-- Proses Simpan: Data dikirim ke database lokal.
-- Halaman Detail: Saat salah satu daftar di klik, muncul isi lengkap jurnal untuk dibaca atau diedit.
+## 1. Konsep Utama & Branding
+- **Nama Aplikasi:** Sanctuary (Premium Edition)
+- **Tema Visual:** *Deep Emerald* dipadukan dengan *Champagne Gold*. Desain UI mengedepankan gaya elegan, ruang kosong (*whitespace*), tipografi mewah (kombinasi Serif dan Sans-Serif), serta animasi *staggered* yang sangat mulus.
+- **Fungsi Utama:** Jurnal refleksi harian interaktif dengan sistem *tagging*, pelacak *mood* berbasis ikon estetis, dan dukungan galeri gambar.
 
-## 4. Komponen UI Penting
-- List View: Untuk menampilkan daftar catatan secara vertikal.
-- Floating Action Button (FAB): Tombol bulat di pojok bawah untuk membuat catatan baru.
-- Bottom Sheet / Modal: Bisa digunakan untuk memilih Mood (Emoji Picker).
-- TextFormField: Untuk area mengetik jurnal dengan fitur auto-expand.
+## 2. Arsitektur Folder (Struktur Project)
+Struktur di dalam `lib/` disusun secara modular dan skalabel:
+- `lib/models/`: Definisi skema data (misal: `journal_entry.dart`).
+- `lib/screens/`: Halaman utama aplikasi (`SplashScreen`, `JournalListScreen`, `NewEntryScreen`, `JournalDetailScreen`).
+- `lib/providers/`: Manajemen state menggunakan *Provider* (`journal_provider.dart` mengelola entri dan tema gelap/terang).
+- `lib/widgets/`: Komponen UI modular (misal: `AppDrawer` yang menampung pengaturan tema).
+- `lib/theme/`: Sistem desain terpusat (`app_theme.dart`) untuk mengatur palet warna dinamis (Terang & Gelap) serta token tipografi premium.
 
-## 5. Rekomendasi Stack Teknologi (Local First)
-Untuk aplikasi yang mudah dan cepat, gunakan kombinasi ini:
-- UI: Flutter (karena Anda sedang mendalaminya).
-- Database: sqflite (Database SQL lokal) atau Hive (Database NoSQL yang sangat cepat untuk Flutter).
-- Penyimpanan Gambar: image_picker (plugin untuk mengambil foto dari galeri/kamera).
+## 3. Skema Data (Model Journal Entry)
+Data inti dari aplikasi ini berfokus pada memori dan refleksi:
+- `id`: (String) ID unik entri.
+- `title`: (String) Judul jurnal atau inti pikiran hari ini.
+- `content`: (String) Isi cerita secara mendalam.
+- `category`: (String) *Tag* kustom yang bisa dibuat pengguna (cth: #syukur, #kerja).
+- `date`: (DateTime) Waktu penulisan jurnal.
+- `emoji`: (String) Ikon *mood* (🌿, ✨, 🌊, ⚡, ☁️).
+- `iconType`: (String) Pengenal warna latar belakang ikon *mood*.
+- `imageBytes`: (Uint8List, Opsional) Foto memori yang diunggah pengguna.
 
-## 6. Roadmap Pengembangan (Tahapan Kerja)
-- Hari 1-2: Buat UI sederhana (Halaman Daftar & Halaman Input).
-- Hari 3-4: Implementasikan Model Data dan Database Lokal (Simpan & Baca).
-- Hari 5: Tambahkan fitur Mood Tracker sederhana (pilih emoji).
-- Hari 6: Percantik tampilan (Warna, Font, dan Mode Gelap).
-- Hari 7: Testing dan perbaikan bug.
+## 4. Alur Pengguna (User Journey)
+1. **Splash Screen Sinematik:** Sambutan animasi elegan (efek *fade & scale*) dengan nuansa warna zamrud dan emas.
+2. **Timeline Garis Waktu:** Layar utama (`CustomScrollView` & `SliverAppBar`) menampilkan entri secara berjatuhan (*staggered animation*).
+3. **Menu Pengaturan:** *Drawer* minimalis dengan fitur *Toggle* Mode Malam (Dark Mode) dan *About App*.
+4. **Editor Entri:** Pembuatan dan pengubahan jurnal. Pengguna dapat memilih *mood*, menambahkan *tag* dinamis, mengunggah foto, dan menyimpannya ke *state*.
+5. **Detail & Refleksi:** Menampilkan bacaan jurnal secara *full-screen* dengan tipografi ala majalah (Playfair Display) lengkap dengan foto, *tag*, dan stempel waktu. Tersedia fitur pengubahan (Edit) dan penghapusan (Delete).
 
-## Contoh Struktur Data (Pseudo-code)
-Jika Anda mulai menulis kodenya di Flutter, kira-kira bentuk datanya akan seperti ini:
+## 5. Komponen UI & Desain
+- **Warna Dinamis (Light/Dark Mode):** 
+  - *Light Mode*: Latar *Off-white* premium dengan teks kontras tinggi.
+  - *Dark Mode*: Latar OLED-Black berlapis *Gunmetal* gelap (0xFF121212) yang nyaman di mata.
+- **Tipografi:** Google Fonts `Playfair Display` untuk judul (memberi kesan klasik nan elegan) dan `Outfit` untuk teks bacaan modern.
+- **Glassmorphism & Shadows:** Penggunaan bayangan lembut (opacity rendah) dan sudut kartu yang melengkung (*rounded 24px*) memberi efek *floating*.
+- **Animasi:** `TweenAnimationBuilder` memicu pergerakan elemen tanpa jeda patah.
 
-Dart
-class JournalEntry {
-  final int? id;
-  final String title;
-  final String content;
-  final String mood;
-  final DateTime date;
+## 6. Stack Teknologi & Package
+- **Framework:** Flutter (Disesuaikan khusus untuk kompatibilitas Flutter Web).
+- **State Management:** `provider` (Pengelola entri jurnal & perpindahan Tema).
+- **Upload Media:** `image_picker` (Menggunakan konversi `Uint8List` yang kompatibel dengan web/desktop/mobile).
+- **Format Data:** `intl` (Untuk format tanggal interaktif).
+- **Tipografi:** `google_fonts` (Memanggil font premium secara langsung).
 
-  JournalEntry({this.id, required this.title, required this.content, required this.mood, required this.date});
-
-  // Fungsi untuk mengubah data ke Map (untuk disimpan ke Database)
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'title': title,
-      'content': content,
-      'mood': mood,
-      'date': date.toIso8601String(),
-    };
-  }
-}
+## 7. Status Pengembangan (Selesai)
+- ✅ Transisi penuh dari tema "Gearhead" ke tema "Sanctuary".
+- ✅ Penerapan animasi kelas atas di seluruh navigasi halaman.
+- ✅ Implementasi fitur *Image Upload* tanpa error di Flutter Web.
+- ✅ Pembuatan *Dynamic Dark/Light Mode* menyeluruh.
+- ✅ *CRUD* Penuh (Buat, Baca, Ubah, Hapus) menggunakan arsitektur *Offline-First* di *Provider*.

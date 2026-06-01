@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 class JournalEntry {
   final String id;
   final String title;
@@ -6,6 +8,7 @@ class JournalEntry {
   final String category;
   final String emoji;
   final String iconType; // e.g., 'leaf', 'bulb', 'moon', 'wave'
+  final Uint8List? imageBytes;
 
   JournalEntry({
     required this.id,
@@ -15,5 +18,6 @@ class JournalEntry {
     required this.category,
     required this.emoji,
     required this.iconType,
+    this.imageBytes,
   });
 }

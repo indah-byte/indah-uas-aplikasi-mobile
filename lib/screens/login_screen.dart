@@ -1,4 +1,4 @@
-import 'dart:io';
+
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'journal_list_screen.dart';
@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: const Color(0xFF0A0A0A),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
@@ -40,9 +40,10 @@ class _LoginScreenState extends State<LoginScreen> {
               constraints: BoxConstraints(
                 minHeight: constraints.maxHeight,
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 60.0),
-                child: Column(
+              child: IntrinsicHeight(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 60.0),
+                  child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -64,9 +65,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                   child: ClipOval(
-                    child: Image.file(
-                      File(r'C:\Users\DELL\.gemini\antigravity\brain\a1ad88cd-e380-40ab-96eb-7991a69e426d\gearhead_piston_logo_1778816646309.png'),
-                      fit: BoxFit.cover,
+                    child: Container(
+                      color: Colors.black,
+                      child: const Icon(
+                        Icons.settings,
+                        color: Colors.red,
+                        size: 80,
+                      ),
                     ),
                   ),
                 ),
@@ -131,6 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     borderSide: const BorderSide(color: Colors.red),
                   ),
                 ),
+                style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 20),
               TextField(
@@ -164,6 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     borderSide: const BorderSide(color: Colors.red),
                   ),
                 ),
+                style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 12),
               Align(
@@ -212,7 +219,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-          );
+          ),
+        );
         },
       ),
     );

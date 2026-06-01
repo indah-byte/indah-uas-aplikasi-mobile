@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_drawer.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   void _showFeatureMessage(BuildContext context, String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -67,9 +72,8 @@ class ProfileScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: CircleAvatar(
-              backgroundColor: Colors.grey[200],
+              backgroundColor: Colors.grey[300],
               radius: 18,
-              child: const Icon(Icons.person, size: 20, color: Colors.grey),
             ),
           ),
         ],
@@ -79,27 +83,40 @@ class ProfileScreen extends StatelessWidget {
           children: [
             const SizedBox(height: 40),
             Center(
-              child: Container(
-                width: 140,
-                height: 140,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  shape: BoxShape.circle,
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.person,
-                    size: 80,
-                    color: Colors.grey,
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'img',
+                        style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ),
-                ),
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: AppTheme.primaryColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.edit, size: 20, color: Colors.white),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 24),
             const Text(
               'Maya Arisanti',
               style: TextStyle(
-                fontSize: 28,
+                color: AppTheme.textColor,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -107,7 +124,7 @@ class ProfileScreen extends StatelessWidget {
             const Text(
               'Finding stillness through words.',
               style: TextStyle(
-                color: Colors.grey,
+                color: AppTheme.subtitleColor,
                 fontSize: 16,
               ),
             ),
@@ -120,22 +137,22 @@ class ProfileScreen extends StatelessWidget {
                   const Text(
                     'PENGATURAN',
                     style: TextStyle(
-                      color: Colors.grey,
+                      color: AppTheme.subtitleColor,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
-                      fontSize: 14,
+                      fontSize: 12,
                     ),
                   ),
                   const SizedBox(height: 16),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      color: AppTheme.cardColor,
+                      borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.02),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
@@ -147,21 +164,21 @@ class ProfileScreen extends StatelessWidget {
                           title: 'Notifikasi',
                           onTap: () => _showFeatureMessage(context, 'Notifikasi'),
                         ),
-                        const Divider(height: 1, indent: 60),
+                        const Divider(height: 1, indent: 50, color: Color(0xFFEEEEEE)),
                         _buildSettingItem(
                           context,
                           icon: Icons.lock_outline,
                           title: 'Keamanan',
                           onTap: () => _showFeatureMessage(context, 'Keamanan'),
                         ),
-                        const Divider(height: 1, indent: 60),
+                        const Divider(height: 1, indent: 50, color: Color(0xFFEEEEEE)),
                         _buildSettingItem(
                           context,
-                          icon: Icons.cloud_outlined,
+                          icon: Icons.cloud_queue,
                           title: 'Pencadangan Cloud',
                           onTap: () => _showFeatureMessage(context, 'Pencadangan Cloud'),
                         ),
-                        const Divider(height: 1, indent: 60),
+                        const Divider(height: 1, indent: 50, color: Color(0xFFEEEEEE)),
                         _buildSettingItem(
                           context,
                           icon: Icons.info_outline,
@@ -174,7 +191,7 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 40),
                   SizedBox(
                     width: double.infinity,
-                    height: 60,
+                    height: 56,
                     child: ElevatedButton.icon(
                       onPressed: () => _showLogoutDialog(context),
                       icon: const Icon(Icons.logout, color: Color(0xFFD32F2F)),
@@ -183,14 +200,14 @@ class ProfileScreen extends StatelessWidget {
                         style: TextStyle(
                           color: Color(0xFFD32F2F),
                           fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFFEBEE),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(28),
                         ),
                       ),
                     ),
@@ -211,23 +228,17 @@ class ProfileScreen extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.grey[50],
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, color: Colors.black87),
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      leading: Icon(icon, color: AppTheme.textColor, size: 24),
       title: Text(
         title,
         style: const TextStyle(
-          fontWeight: FontWeight.w500,
+          color: AppTheme.textColor,
+          fontWeight: FontWeight.w400,
           fontSize: 16,
         ),
       ),
-      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+      trailing: const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
       onTap: onTap,
     );
   }

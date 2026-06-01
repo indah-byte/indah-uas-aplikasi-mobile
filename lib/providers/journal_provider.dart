@@ -2,23 +2,32 @@ import 'package:flutter/material.dart';
 import '../models/journal_entry.dart';
 
 class JournalProvider with ChangeNotifier {
+  bool _isDarkMode = false;
+  
+  bool get isDarkMode => _isDarkMode;
+
+  void toggleTheme() {
+    _isDarkMode = !_isDarkMode;
+    notifyListeners();
+  }
+
   final List<JournalEntry> _entries = [
     JournalEntry(
       id: '1',
-      title: 'Pagi yang Menenangkan',
-      content: 'Hari ini dimulai dengan secangkir teh di teras. Menghirup udara pagi yang segar benar-benar memberikan energi baru.',
-      date: DateTime(2026, 10, 12, 8, 30),
+      title: 'Pagi yang Tenang',
+      content: 'Hari ini dimulai dengan secangkir kopi hangat dan udara segar. Rasanya damai sekali melihat matahari terbit.',
+      date: DateTime.now().subtract(const Duration(days: 1)),
       category: 'syukur',
       emoji: '🌿',
       iconType: 'leaf',
     ),
     JournalEntry(
       id: '2',
-      title: 'Refleksi Proyek Besar',
-      content: 'Akhirnya menyelesaikan milestone pertama. Ternyata tantangan terbesarnya bukan pada teknis, tapi komunikasi.',
-      date: DateTime(2026, 10, 11, 21, 15),
+      title: 'Ide Cemerlang',
+      content: 'Mendapat inspirasi baru untuk proyek tulisan berikutnya. Kadang ide terbaik datang saat kita paling rileks.',
+      date: DateTime.now().subtract(const Duration(days: 2)),
       category: 'kerja',
-      emoji: '💡',
+      emoji: '✨',
       iconType: 'bulb',
     ),
   ];
@@ -30,8 +39,17 @@ class JournalProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateEntry(JournalEntry updatedEntry) {
+    final index = _entries.indexWhere((e) => e.id == updatedEntry.id);
+    if (index != -1) {
+      _entries[index] = updatedEntry;
+      notifyListeners();
+    }
+  }
+
   void deleteEntry(String id) {
     _entries.removeWhere((element) => element.id == id);
     notifyListeners();
   }
 }
+

@@ -1,18 +1,96 @@
-import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../providers/journal_provider.dart';
 import '../theme/app_theme.dart';
-import '../screens/profile_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   final String currentRoute;
   
   const AppDrawer({super.key, required this.currentRoute});
 
+  void _showSettingsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        title: Text(
+          'Pengaturan',
+          style: GoogleFonts.outfit(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).textTheme.displayLarge?.color,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Consumer<JournalProvider>(
+              builder: (context, provider, child) {
+                return ListTile(
+                  leading: Icon(
+                    provider.isDarkMode ? Icons.dark_mode_outlined : Icons.brightness_6_outlined,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  title: Text('Mode Gelap', style: GoogleFonts.outfit(color: Theme.of(context).textTheme.bodyLarge?.color)),
+                  trailing: Switch(
+                    value: provider.isDarkMode,
+                    onChanged: (val) {
+                      provider.toggleTheme();
+                    },
+                    activeColor: Theme.of(context).primaryColor,
+                  ),
+                  onTap: () {
+                    provider.toggleTheme();
+                  },
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.info_outline, color: Theme.of(context).primaryColor),
+              title: Text('Tentang Aplikasi', style: GoogleFonts.outfit(color: Theme.of(context).textTheme.bodyLarge?.color)),
+              onTap: () {
+                Navigator.pop(context);
+                showAboutDialog(
+                  context: context,
+                  applicationName: 'Sanctuary',
+                  applicationVersion: '1.0.0',
+                  applicationLegalese: '© 2026 Sanctuary',
+                  applicationIcon: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.eco, color: Colors.white),
+                  ),
+                  children: [
+                    const SizedBox(height: 16),
+                    Text(
+                      'Sanctuary adalah aplikasi jurnal minimalis untuk menuangkan pikiran Anda dan menemukan ketenangan dalam menulis.',
+                      style: GoogleFonts.outfit(),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Tutup', style: TextStyle(color: Theme.of(context).primaryColor)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: const Color(0xFF0F0F0F),
+      backgroundColor: AppTheme.backgroundColor,
       child: Column(
         children: [
           _buildHeader(context),
@@ -22,92 +100,29 @@ class AppDrawer extends StatelessWidget {
               padding: EdgeInsets.zero,
               children: [
                 _buildDrawerItem(
-                  icon: Icons.directions_car_outlined,
-                  title: 'GARAGE',
+                  icon: Icons.book_outlined,
+                  title: 'Jurnal Saya',
                   onTap: () {
                     Navigator.pop(context);
                     if (currentRoute != 'home') {
-                      Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
                     }
                   },
                   isSelected: currentRoute == 'home',
                 ),
                 _buildDrawerItem(
-                  icon: Icons.person_outline,
-                  title: 'OPERATOR PROFILE',
-                  onTap: () {
-                    Navigator.pop(context);
-                    if (currentRoute != 'profile') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const ProfileScreen()),
-                      );
-                    }
-                  },
-                  isSelected: currentRoute == 'profile',
-                ),
-                _buildDrawerItem(
                   icon: Icons.settings_outlined,
-                  title: 'SYSTEM SETTINGS',
+                  title: 'Pengaturan',
                   onTap: () {
                     Navigator.pop(context);
+                    _showSettingsDialog(context);
                   },
                   isSelected: false,
                 ),
               ],
             ),
           ),
-          const Divider(height: 1, color: Colors.white10),
-          _buildLogoutButton(context),
         ],
-      ),
-    );
-  }
-
-  Widget _buildLogoutButton(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.pop(context);
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            backgroundColor: const Color(0xFF1A1A1A),
-            title: Text('TERMINATE SESSION', style: GoogleFonts.outfit(color: Colors.red, fontWeight: FontWeight.bold)),
-            content: Text('Are you sure you want to disconnect from Gearhead?', style: GoogleFonts.outfit(color: Colors.white70)),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('CANCEL', style: GoogleFonts.outfit(color: Colors.white54)),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Session terminated.')),
-                  );
-                },
-                child: Text('LOGOUT', style: GoogleFonts.outfit(color: Colors.red, fontWeight: FontWeight.bold)),
-              ),
-            ],
-          ),
-        );
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Row(
-          children: [
-            const Icon(Icons.logout, color: Colors.red, size: 20),
-            const SizedBox(width: 12),
-            Text(
-              'LOGOUT',
-              style: GoogleFonts.outfit(
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -115,44 +130,38 @@ class AppDrawer extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(top: 60, left: 24, right: 24, bottom: 24),
-      decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.05),
-        border: const Border(bottom: BorderSide(color: Colors.white10)),
+      decoration: const BoxDecoration(
+        color: AppTheme.backgroundColor,
+        border: Border(bottom: BorderSide(color: Color(0xFFE0E0E0))),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
+            width: 60,
+            height: 60,
+            decoration: const BoxDecoration(
+              color: AppTheme.primaryColor,
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.red, width: 2),
             ),
-            child: CircleAvatar(
-              radius: 30,
-              backgroundColor: Colors.black,
-              backgroundImage: FileImage(File(r'C:\Users\DELL\.gemini\antigravity\brain\a1ad88cd-e380-40ab-96eb-7991a69e426d\gearhead_profile_avatar_1778818045664.png')),
-            ),
+            child: const Icon(Icons.eco, color: Colors.white, size: 30),
           ),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'MAYA ARISANTI',
+                'Sanctuary',
                 style: GoogleFonts.outfit(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 1,
+                  color: AppTheme.textColor,
                 ),
               ),
               Text(
-                'MASTER MECHANIC',
+                'Journaling App',
                 style: GoogleFonts.outfit(
-                  fontSize: 10,
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
+                  fontSize: 12,
+                  color: AppTheme.subtitleColor,
                 ),
               ),
             ],
@@ -173,19 +182,18 @@ class AppDrawer extends StatelessWidget {
       child: ListTile(
         leading: Icon(
           icon,
-          color: isSelected ? Colors.red : Colors.white24,
+          color: isSelected ? AppTheme.primaryColor : AppTheme.subtitleColor,
         ),
         title: Text(
           title,
           style: GoogleFonts.outfit(
-            color: isSelected ? Colors.white : Colors.white54,
+            color: isSelected ? AppTheme.primaryColor : AppTheme.textColor,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             fontSize: 14,
-            letterSpacing: 1,
           ),
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        tileColor: isSelected ? Colors.red.withOpacity(0.1) : null,
+        tileColor: isSelected ? AppTheme.primaryColor.withOpacity(0.1) : null,
         onTap: onTap,
       ),
     );

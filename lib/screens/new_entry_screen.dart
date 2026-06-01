@@ -4,9 +4,13 @@ import '../models/journal_entry.dart';
 import '../providers/journal_provider.dart';
 import '../theme/app_theme.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:typed_data';
 
 class NewEntryScreen extends StatefulWidget {
-  const NewEntryScreen({super.key});
+  final JournalEntry? existingEntry;
+
+  const NewEntryScreen({super.key, this.existingEntry});
 
   @override
   State<NewEntryScreen> createState() => _NewEntryScreenState();
@@ -16,21 +20,92 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   String selectedMood = 'Tenang';
-  final List<String> tags = ['syukur', 'pertumbuhan'];
+  String selectedTag = 'syukur';
+  final List<String> tags = ['syukur', 'pertumbuhan', 'kerja', 'istirahat'];
+  Uint8List? _imageBytes;
 
   final List<Map<String, String>> moods = [
     {'name': 'Tenang', 'emoji': '🌿', 'color': 'leaf'},
     {'name': 'Senang', 'emoji': '✨', 'color': 'bulb'},
     {'name': 'Melankolis', 'emoji': '🌊', 'color': 'wave'},
-    {'name': 'Energi', 'emoji': '⚡', 'color': 'bulb'},
-    {'name': 'Biasa', 'emoji': '☁️', 'color': 'moon'},
+    {'name': 'Energi', 'emoji': '⚡', 'color': 'lightning'},
+    {'name': 'Marah', 'emoji': '☁️', 'color': 'moon'},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.existingEntry != null) {
+      _titleController.text = widget.existingEntry!.title;
+      _contentController.text = widget.existingEntry!.content;
+      selectedMood = moods.firstWhere((m) => m['emoji'] == widget.existingEntry!.emoji, orElse: () => moods.first)['name']!;
+      selectedTag = widget.existingEntry!.category;
+      if (!tags.contains(selectedTag)) {
+        tags.add(selectedTag);
+      }
+      _imageBytes = widget.existingEntry!.imageBytes;
+    }
+  }
 
   @override
   void dispose() {
     _titleController.dispose();
     _contentController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      final bytes = await pickedFile.readAsBytes();
+      setState(() {
+        _imageBytes = bytes;
+      });
+    }
+  }
+
+  void _showAddTagDialog() {
+    final TextEditingController tagController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppTheme.backgroundColor,
+          title: const Text('Tambah Tag Baru', style: TextStyle(color: AppTheme.textColor)),
+          content: TextField(
+            controller: tagController,
+            decoration: InputDecoration(
+              hintText: 'Nama tag...',
+              focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryColor)),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: () {
+                final tag = tagController.text.trim().toLowerCase();
+                if (tag.isNotEmpty && !tags.contains(tag)) {
+                  setState(() {
+                    tags.add(tag);
+                    selectedTag = tag;
+                  });
+                } else if (tags.contains(tag)) {
+                  setState(() {
+                    selectedTag = tag;
+                  });
+                }
+                Navigator.pop(context);
+              },
+              child: const Text('Tambah', style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _saveEntry() {
@@ -44,16 +119,22 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
     final moodData = moods.firstWhere((m) => m['name'] == selectedMood);
     
     final newEntry = JournalEntry(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: widget.existingEntry?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       title: _titleController.text,
       content: _contentController.text,
-      date: DateTime.now(),
-      category: tags.isNotEmpty ? tags.first : 'umum',
+      date: widget.existingEntry?.date ?? DateTime.now(),
+      category: selectedTag,
       emoji: moodData['emoji']!,
       iconType: moodData['color']!,
+      imageBytes: _imageBytes,
     );
 
-    Provider.of<JournalProvider>(context, listen: false).addEntry(newEntry);
+    if (widget.existingEntry != null) {
+      Provider.of<JournalProvider>(context, listen: false).updateEntry(newEntry);
+    } else {
+      Provider.of<JournalProvider>(context, listen: false).addEntry(newEntry);
+    }
+    
     Navigator.pop(context);
   }
 
@@ -62,6 +143,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
       case 'leaf': return AppTheme.leafBg;
       case 'bulb': return AppTheme.bulbBg;
       case 'wave': return AppTheme.waveBg;
+      case 'lightning': return AppTheme.lightningBg;
       case 'moon': return AppTheme.moonBg;
       default: return Colors.grey[200]!;
     }
@@ -70,28 +152,30 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.primaryColor),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).primaryColor),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Journal',
-          style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold),
         ),
+        centerTitle: true,
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: ElevatedButton(
               onPressed: _saveEntry,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryColor,
+                backgroundColor: Theme.of(context).primaryColor,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 elevation: 0,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
               ),
               child: const Text('Simpan'),
             ),
@@ -99,23 +183,27 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               DateFormat('EEEE, d MMMM yyyy').format(DateTime.now()).toUpperCase(),
-              style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold),
+              style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color, fontSize: 10, fontWeight: FontWeight.w600, letterSpacing: 1),
             ),
             const SizedBox(height: 8),
             Text(
-              'Entri Baru',
-              style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 28),
+              widget.existingEntry != null ? 'Edit Entri' : 'Entri Baru',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).textTheme.displayLarge?.color,
+              ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Pilih Mood',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Theme.of(context).textTheme.displayLarge?.color),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -139,7 +227,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                               color: _getMoodColor(mood['color']!),
                               shape: BoxShape.circle,
                               border: isSelected 
-                                ? Border.all(color: AppTheme.primaryColor, width: 2)
+                                ? Border.all(color: Theme.of(context).primaryColor, width: 2)
                                 : null,
                             ),
                             child: Center(child: Text(mood['emoji']!, style: const TextStyle(fontSize: 24))),
@@ -149,8 +237,8 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
                             mood['name']!,
                             style: TextStyle(
                               fontSize: 12,
-                              color: isSelected ? AppTheme.primaryColor : Colors.black87,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).textTheme.bodyLarge?.color,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                             ),
                           ),
                         ],
@@ -163,140 +251,174 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
             const SizedBox(height: 24),
             TextField(
               controller: _titleController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'Judul',
-                hintStyle: TextStyle(fontSize: 24, color: Colors.grey, fontWeight: FontWeight.w300),
+                hintStyle: TextStyle(fontSize: 20, color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5)),
                 border: InputBorder.none,
+                fillColor: Colors.transparent,
               ),
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.displayLarge?.color),
             ),
             const SizedBox(height: 16),
             Wrap(
               spacing: 8,
+              runSpacing: 8,
               children: [
-                ...tags.map((tag) => Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('# ', style: TextStyle(color: Colors.grey)),
-                      Text(tag, style: const TextStyle(color: AppTheme.primaryColor)),
-                    ],
-                  ),
-                )),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey[300]!),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.add, size: 16, color: Colors.grey),
-                      SizedBox(width: 4),
-                      Text('Tambah Tag', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                    ],
+                ...tags.map((tag) {
+                  final isSelected = selectedTag == tag;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedTag = tag;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isSelected ? AppTheme.leafBg : (Theme.of(context).brightness == Brightness.dark ? Colors.grey[800] : Colors.grey[200]),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('# ', style: TextStyle(color: isSelected ? AppTheme.primaryColor : (Theme.of(context).brightness == Brightness.dark ? Colors.grey[400] : Colors.black54))),
+                          Text(tag, style: TextStyle(color: isSelected ? AppTheme.primaryColor : (Theme.of(context).brightness == Brightness.dark ? Colors.grey[400] : Colors.black54), fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+                GestureDetector(
+                  onTap: _showAddTagDialog,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black12),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.add, size: 16, color: Colors.black54),
+                        SizedBox(width: 4),
+                        Text('Tambah Tag', style: TextStyle(color: Colors.black54, fontSize: 12)),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 24),
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(16),
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: TextField(
-                controller: _contentController,
-                maxLines: 8,
-                decoration: const InputDecoration(
-                  hintText: 'Ceritakan harimu...',
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: _saveEntry,
-                icon: const Icon(Icons.check, color: Colors.white),
-                label: const Text('Simpan Entri', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _contentController,
+                    maxLines: 8,
+                    decoration: InputDecoration(
+                      hintText: 'Ceritakan harimu...',
+                      hintStyle: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5)),
+                      border: InputBorder.none,
+                      fillColor: Colors.transparent,
+                    ),
+                    style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton.icon(
+                      onPressed: _saveEntry,
+                      icon: const Icon(Icons.check, color: Colors.white),
+                      label: const Text('Simpan Entri', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 0,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                _buildIconButton(Icons.image_outlined),
-                const SizedBox(width: 12),
-                _buildIconButton(Icons.mic_none_outlined),
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: _buildIconButton(context, Icons.image_outlined),
+                ),
               ],
             ),
             const SizedBox(height: 32),
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFFE9F4FB),
+                color: AppTheme.waveBg,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.lightbulb_outline, color: AppTheme.primaryColor),
-                      SizedBox(width: 12),
+                      Icon(Icons.lightbulb_outline, color: Colors.blue[700]),
+                      const SizedBox(width: 12),
                       Text(
                         'Ide Refleksi',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue[800]),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Apa satu hal kecil yang membuatmu tersenyum hari ini?',
-                    style: TextStyle(color: Colors.blueGrey[700], fontSize: 15),
+                    style: TextStyle(color: Colors.blue[900]?.withOpacity(0.8), fontSize: 14),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.network(
-                'https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&q=80&w=1000',
-                height: 400,
-                width: double.infinity,
-                fit: BoxFit.cover,
+            if (_imageBytes != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.memory(
+                  _imageBytes!,
+                  height: 300,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
+            const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildIconButton(IconData icon) {
+  Widget _buildIconButton(BuildContext context, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800] : Colors.grey[200],
         shape: BoxShape.circle,
       ),
-      child: Icon(icon, color: Colors.black54),
+      child: Icon(icon, color: Theme.of(context).textTheme.bodyMedium?.color),
     );
   }
 }
+

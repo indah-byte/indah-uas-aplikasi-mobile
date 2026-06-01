@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/journal_provider.dart';
-import 'screens/journal_list_screen.dart';
 import 'screens/splash_screen.dart';
 import 'theme/app_theme.dart';
+import 'screens/journal_list_screen.dart';
 
 void main() {
   runApp(
@@ -19,12 +19,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Gearhead Performance',
-      theme: AppTheme.darkTheme,
-      themeMode: ThemeMode.dark,
-      home: const SplashScreen(),
+    return Consumer<JournalProvider>(
+      builder: (context, provider, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Sanctuary',
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: provider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          initialRoute: '/',
+          routes: {
+            '/': (context) => const SplashScreen(),
+            '/home': (context) => const JournalListScreen(),
+          },
+        );
+      },
     );
   }
 }
+
